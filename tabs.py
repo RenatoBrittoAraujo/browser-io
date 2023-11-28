@@ -29,7 +29,7 @@ def get_recovery_recovery_data(recovery_file):
     # | jq -r '.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i] | .title, .url, ""'
 
     _, o, _ = cmd(
-        f"lz4jsoncat {recovery_file} | jq -r '.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i] '",
+        f"lz4jsoncat {recovery_file} | jq -r '[.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i]]'",
         debug=True,
     )
     return o
@@ -47,10 +47,9 @@ if __name__ == "__main__":
     s.save()
 
     recovery_file = s.state.get("RECOVERY_FILE")
-    if recovery_file is None:
+    if recovery_file is None or len(recovery_file) == 0:
         s.state["RECOVERY_FILE"] = get_recovery_file(mozilla_path)
     print(f"RECOVERY_FILE = {recovery_file}")
-
     s.save()
 
     o = get_recovery_recovery_data(recovery_file)
