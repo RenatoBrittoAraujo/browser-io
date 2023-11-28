@@ -3,4 +3,6 @@ open_engines:
 
 save_open_tabs:
 	python tabs.py
-	
+
+deps:
+	sudo apt install lz4json

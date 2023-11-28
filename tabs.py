@@ -7,15 +7,19 @@ def get_mozilla_folder():
     print(o)
     _, user_folder, _ = cmd("echo ~")
     user_folder = user_folder.strip()
-    resp = None
+    resps = []
     for candidate in o.splitlines():
         candidate = candidate.strip()
         if candidate.startswith(user_folder):
-            resp = candidate
-            break
-    if resp is None:
+            resps.append(candidate)
+    if len(resps) == 0:
         raise Exception("the '.mozilla' folder was not found")
-    return resp
+    if len(resps) > 1:
+        raise Exception(
+            f"more than one ({len(resps)}) possible candidate for '.mozilla' folder, please specify it manually in the state file. the candidates are: \n ---> "
+            + "\n ---> ".join(resps)
+        )
+    return resps[0]
 
 
 def get_recovery_file(mozilla_folder):
@@ -40,8 +44,12 @@ if __name__ == "__main__":
     s = State()
     s.load()
 
+    if "MOZZILA_PATH" not in s.state:
+        s.state["MOZZILA_PATH"] = ""
+        s.save()
+
     mozilla_path = s.state.get("MOZZILA_PATH")
-    if mozilla_path is None:
+    if mozilla_path is None or len(mozilla_path) == 0:
         s.state["MOZZILA_PATH"] = get_mozilla_folder()
     print(f"MOZZILA_PATH = {mozilla_path}")
 
