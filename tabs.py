@@ -19,7 +19,9 @@ def get_mozilla_folder():
 
 
 def get_recovery_file(mozilla_folder):
-    _, o, _ = cmd(f"find {mozilla_folder} -name '*recovery.jsonlz4'", debug=True)
+    _, o, _ = cmd(
+        f"find {mozilla_folder} -name '*recovery.jsonlz4'",
+    )
     o = o.strip()
     return o
 
@@ -30,7 +32,6 @@ def get_recovery_recovery_data(recovery_file):
 
     _, o, _ = cmd(
         f"lz4jsoncat {recovery_file} | jq -r '[.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i]]'",
-        debug=True,
     )
     return o
 
@@ -54,7 +55,7 @@ if __name__ == "__main__":
 
     o = get_recovery_recovery_data(recovery_file)
 
-    # s.save()
+    filename = f"sess-{get_timestamp()}.json"
+    save_file(filename, o)
 
-    print("sess = ", o)
-    save_file("sess.json", o)
+    print(f"saved tabs to '{filename}'")
