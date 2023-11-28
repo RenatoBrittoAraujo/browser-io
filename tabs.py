@@ -18,21 +18,19 @@ def get_mozilla_folder():
     return resp
 
 
-def get_session_file(mozilla_folder):
+def get_recovery_file(mozilla_folder):
     _, o, _ = cmd(f"find {mozilla_folder} -name '*recovery.jsonlz4'", debug=True)
     o = o.strip()
     return o
 
 
-def get_session_recovery_data(mozilla_folder):
+def get_recovery_recovery_data(recovery_file):
     # lz4jsoncat $profile/sessionstore-backups/recovery.jsonlz4 \
     # | jq -r '.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i] | .title, .url, ""'
 
-    recovery_file = get_session_file(mozilla_folder)
-    print(f"recovery_file = {recovery_file}")
     _, o, _ = cmd(
-        f"lz4jsoncat {recovery_file} | jq -r '.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i] | .title, .url, "
-        "'"
+        f"lz4jsoncat {recovery_file} | jq -r '.windows[] | .tabs[] | (.index - 1) as $i | .entries[$i] '",
+        debug=True,
     )
     return o
 
@@ -40,16 +38,24 @@ def get_session_recovery_data(mozilla_folder):
 if __name__ == "__main__":
     s = State()
     s.load()
-    print(s.state)
-    if "jose" in s.state:
-        del s.state["jose"]
-    else:
-        s.state["jose"] = 1
-    s.state["maria"] = 2
-    s.save()
-    # mozilla_path = get_mozilla_folder()
-    # print(f"MOZZILA_PATH = {mozilla_path}")
 
-    # o = get_session_recovery_data(mozilla_path)
-    # print("sess = ", o)
-    # save_file("sess.json", o)
+    mozilla_path = s.state.get("MOZZILA_PATH")
+    if mozilla_path is None:
+        s.state["MOZZILA_PATH"] = get_mozilla_folder()
+    print(f"MOZZILA_PATH = {mozilla_path}")
+
+    s.save()
+
+    recovery_file = s.state.get("RECOVERY_FILE")
+    if recovery_file is None:
+        s.state["RECOVERY_FILE"] = get_recovery_file(mozilla_path)
+    print(f"RECOVERY_FILE = {recovery_file}")
+
+    s.save()
+
+    o = get_recovery_recovery_data(recovery_file)
+
+    # s.save()
+
+    print("sess = ", o)
+    save_file("sess.json", o)
