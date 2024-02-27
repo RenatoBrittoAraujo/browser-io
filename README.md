@@ -1,31 +1,31 @@
-# First iteration
+# browser-io
 
-- Save all open tabs in current firefox sessions to file.
-- Load file as tabs in firefox.
-- Default file of websites easily loads.
+Save all tabs of your multiple browsers in a single json.
 
-- for brave
-- for TOR?
+This is done by getting tabs in 
+- firefox (and firefox-based?) - `.../.mozilla/firefox/*.default/sessionstore-backups/recovery.jsonlz4`
+- brave (and chromium-based?) - `.../BraveSoftware/Brave-Browser/Default/Sessions/Tabs_*`
 
-research:
-- https://github.com/balta2ar/brotab#brotab (does what this is supposed to do)
-- - sudo apt install pipx; pipx install brotab
+## deps 
 
-- switch from 
-/home/renato/.mozilla
-to
-/home/renato/snap/firefox/common/.mozilla
+```
+sudo apt install lz4json # parse lz4 format for firefox json
+```
 
-# second iteration
+## Further objectives 
 
-Found command that gets recovery info from firefox
+- support more browsers (probably easy for firefox based and chromium based browsers)
+- implement way of extracting browser's history 
 
-The file is at `$MOZILLA_FOLDER/firefox/{...}.default/sessionstore-backups/recovery.jsonlz4`
+## Other info
 
-The file format is weird, convert to json
+firefox has `places.sqlite` for websites visited
+For an export of firefox history.
 
-INSTALL `lz4json`
+### sqlite `places.sqlite`
 
+sqlite3 places.sqlite "select \* from moz_places"
 
-
-
+sqlite3> .mode json
+sqlite3> .once out.json
+sqlite3> SELECT \* from foo;
